@@ -1,0 +1,25 @@
+{
+  "name": "cypress-serverest",
+  "version": "1.0.0",
+  "description": "Testing automation with cypress and ServeRest",
+  "main": "index.js",
+  "scripts": {
+    "start": " npx serverest -s -p 4200 -t 7200 "
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeohsPaixao/cypress-serveRest.git"
+  },
+  "keywords": [
+    "testing"
+  ],
+  "author": "Leonardo Paixão",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LeohsPaixao/cypress-serveRest/issues"
+  },
+  "homepage": "https://github.com/LeohsPaixao/cypress-serveRest#readme",
+  "dependencies": {
+    "serverest": "^2.28.0"
+  }
+}
