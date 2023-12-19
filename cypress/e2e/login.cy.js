@@ -24,7 +24,7 @@ describe('Teste de Login via API', () => {
     });
   });
 
-  it("Deve ser exibido uma mensagem de credenciais inválidos - Email", () => {
+  it("Deve ser exibido uma mensagem de Email inválido - Email", () => {
     const email = "fulano";
     const password = "teste";
 
@@ -48,7 +48,7 @@ describe('Teste de Login via API', () => {
     });
   });
 
-  it("Deve ser exibido uma mensagem de credenciais inválidos - Senha", () => {
+  it("Deve ser exibido uma mensagem de Senha inválida", () => {
     const email = "fulano@qa.com";
     const password = "";
 
@@ -69,6 +69,30 @@ describe('Teste de Login via API', () => {
       console.log(response);
       expect(response.status).to.equal(400);
       expect(response.body.password).to.equal("password não pode ficar em branco");
+    });
+  });
+
+  it("Deve ser exibido uma mensagem caso uma das credenciais sejam inválidas", () => {
+    const email = "fulano2@qa.com";
+    const password = "teste";
+
+    cy.request({
+      log: true,
+      failOnStatusCode: false,
+      method: 'POST',
+      url: '/login',
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: {
+        "email": email,
+        "password": password
+      },
+    }).then((response) => {
+      console.log(response);
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal("Email e/ou senha inválidos");
     });
   })
 });
