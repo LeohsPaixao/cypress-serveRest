@@ -1,9 +1,6 @@
 describe('Teste de Login via API', () => {
 
   it('Deve realizar o login com sucesso', () => {
-    const email = "fulano@qa.com";
-    const password = "teste";
-
     cy.request({
       log: true,
       failOnStatusCode: true,
@@ -14,8 +11,8 @@ describe('Teste de Login via API', () => {
         "content-type": "application/json"
       },
       body: {
-        "email": email,
-        "password": password
+        "email": "fulano@qa.com",
+        "password": "teste"
       },
     }).then((response) => {
       console.log(response);
@@ -24,10 +21,7 @@ describe('Teste de Login via API', () => {
     });
   });
 
-  it("Deve ser exibido uma mensagem de Email inválido - Email", () => {
-    const email = "fulano";
-    const password = "teste";
-
+  it("Deve ser exibido uma mensagem de Email inválido", () => {
     cy.request({
       log: true,
       failOnStatusCode: false,
@@ -38,8 +32,8 @@ describe('Teste de Login via API', () => {
         "content-type": "application/json"
       },
       body: {
-        "email": email,
-        "password": password
+        "email": "fulano",
+        "password": "teste"
       },
     }).then((response) => {
       console.log(response);
@@ -49,9 +43,6 @@ describe('Teste de Login via API', () => {
   });
 
   it("Deve ser exibido uma mensagem de Senha inválida", () => {
-    const email = "fulano@qa.com";
-    const password = "";
-
     cy.request({
       log: true,
       failOnStatusCode: false,
@@ -62,8 +53,8 @@ describe('Teste de Login via API', () => {
         "content-type": "application/json"
       },
       body: {
-        "email": email,
-        "password": password
+        "email": "fulano@qa.com",
+        "password": ""
       },
     }).then((response) => {
       console.log(response);
@@ -72,10 +63,7 @@ describe('Teste de Login via API', () => {
     });
   });
 
-  it("Deve ser exibido uma mensagem caso uma das credenciais sejam inválidas", () => {
-    const email = "fulano2@qa.com";
-    const password = "teste";
-
+  it("Deve ser exibido uma mensagem caso uma das credenciais seja inválida", () => {
     cy.request({
       log: true,
       failOnStatusCode: false,
@@ -86,13 +74,13 @@ describe('Teste de Login via API', () => {
         "content-type": "application/json"
       },
       body: {
-        "email": email,
-        "password": password
+        "email": "fulano2@qa.com",
+        "password": "teste"
       },
     }).then((response) => {
       console.log(response);
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal("Email e/ou senha inválidos");
     });
-  })
+  });
 });
