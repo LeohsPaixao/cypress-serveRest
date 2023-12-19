@@ -8,18 +8,24 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 //
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', () => {
+  cy.request({
+    log: true,
+    failOnStatusCode: true,
+    method: 'POST',
+    url: '/login',
+    headers: {
+      "accept": "application/json",
+      "content-type": "application/json"
+    },
+    body: {
+      "email": "fulano@qa.com",
+      "password": "teste"
+    },
+  }).then((response) => {
+    console.log(response);
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal("Login realizado com sucesso");
+  });
+})
