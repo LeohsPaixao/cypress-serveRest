@@ -7,7 +7,7 @@ describe(" Teste de Usuários via API", () => {
     cy.login();
   });
 
-  it("Deve ser listados um usuário", () => {
+  it("Deve ser listados todos usuário", () => {
     cy.request({
       log: true,
       failOnStatusCode: true,
@@ -18,16 +18,6 @@ describe(" Teste de Usuários via API", () => {
         "content-type": "application/json"
       },
       body: {
-        "quantidade": 1,
-        "usuarios": [
-          {
-            "nome": "Fulana da Silva",
-            "email": "fulano@qa.com",
-            "password": "teste",
-            "administrador": "true",
-            "_id": "0uxuPY0cbmQhpEz1"
-          }
-        ]
       }
     }).then((response) => {
       console.log(response);
