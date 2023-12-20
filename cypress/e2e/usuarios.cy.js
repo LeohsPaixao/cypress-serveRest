@@ -16,7 +16,7 @@ describe(" Teste de Usuários via API", () => {
   it("Deve ser listados um usuário", () => {
     cy.request({
       log: true,
-      failOnStatusCode: false,
+      failOnStatusCode: true,
       method: 'GET',
       url: '/usuarios',
       headers: {
@@ -46,7 +46,7 @@ describe(" Teste de Usuários via API", () => {
 
     cy.request({
       log: true,
-      failOnStatusCode: false,
+      failOnStatusCode: true,
       method: 'POST',
       url: '/usuarios',
       headers: {
@@ -92,7 +92,7 @@ describe(" Teste de Usuários via API", () => {
   it("Deve buscar um usuários pelo ID", () => {
     cy.request({
       log: true,
-      failOnStatusCode: false,
+      failOnStatusCode: true,
       method: 'GET',
       url: '/usuarios/0uxuPY0cbmQhpEz1',
       headers: {
@@ -149,7 +149,7 @@ describe(" Teste de Usuários via API", () => {
   it("Deve excluir um usuário", () => {
     cy.request({
       log: true,
-      failOnStatusCode: false,
+      failOnStatusCode: true,
       method: 'DELETE',
       url: `/usuarios/${userID}`,
       headers: {
@@ -173,5 +173,55 @@ describe(" Teste de Usuários via API", () => {
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal("Registro excluído com sucesso");
     })
+  });
+
+  it("Deve editar um usuário", () => {
+    const randomEmail = faker.internet.email();
+    const username = faker.internet.userName();
+    const password = faker.internet.password();
+
+    cy.request({
+      log: true,
+      failOnStatusCode: true,
+      method: 'PUT',
+      url: `/usuarios/${userID}`,
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: {
+        "nome": username,
+        "email": randomEmail,
+        "password": password,
+        "administrador": "true",
+      }
+    }).then((response) => {
+      console.log(response);
+      expect(response.status).to.equal(200);
+      expect(response.body.message).to.equal("Registro alterado com sucesso");
+    })
+  });
+
+  it("Deve ser exibido uma mensagem caso coloque um email existente na edição do usuario", () => {
+    cy.request({
+      log: true,
+      failOnStatusCode: false,
+      method: 'PUT',
+      url: `/usuarios/${userID}`,
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: {
+        "nome": "Fulana da Silva",
+        "email": "fulano@qa.com",
+        "password": "<PASSWORD>",
+        "administrador": "true",
+      }
+    }).then((response) => {
+      console.log(response);
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal("Este email já está sendo usado");
+    });
   });
 })
