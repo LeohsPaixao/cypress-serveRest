@@ -3,14 +3,8 @@ import createUser from './shared/createUser';
 
 describe(" Teste de Usuários via API", () => {
 
-  let userID;
-
   beforeEach(() => {
     cy.login();
-
-    return createUser().then((id) => {
-      userID = id;
-    });
   });
 
   it("Deve ser listados um usuário", () => {
@@ -147,77 +141,89 @@ describe(" Teste de Usuários via API", () => {
   });
 
   it("Deve excluir um usuário", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: true,
-      method: 'DELETE',
-      url: `/usuarios/${userID}`,
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
-      body: {
-        "quantidade": 1,
-        "usuarios": [
-          {
-            "nome": "Fulana da Silva",
-            "email": "fulano@qa.com",
-            "password": "<PASSWORD>",
-            "administrador": "true",
-            "_id": "0uxuPY0cbmQhpEz1"
-          }
-        ]
-      }
+    let userID;
+
+    // Cria o usuário primeiro
+    return createUser().then((id) => {
+      userID = id;
+
+      // Agora, faz a requisição para excluir o usuário
+      return cy.request({
+        log: true,
+        failOnStatusCode: true,
+        method: 'DELETE',
+        url: `/usuarios/${userID}`,
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json"
+        },
+      });
     }).then((response) => {
       console.log(response);
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal("Registro excluído com sucesso");
-    })
+    });
   });
+
 
   it("Deve editar um usuário", () => {
     const randomEmail = faker.internet.email();
     const username = faker.internet.userName();
     const password = faker.internet.password();
+    let userID;
 
-    cy.request({
-      log: true,
-      failOnStatusCode: true,
-      method: 'PUT',
-      url: `/usuarios/${userID}`,
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
-      body: {
-        "nome": username,
-        "email": randomEmail,
-        "password": password,
-        "administrador": "true",
-      }
+    // Cria o usuário primeiro
+    return createUser().then((id) => {
+      userID = id;
+
+      // Agora, faz a requisição para editar o usuário
+      return cy.request({
+        log: true,
+        failOnStatusCode: true,
+        method: 'PUT',
+        url: `/usuarios/${userID}`,
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json"
+        },
+        body: {
+          "nome": username,
+          "email": randomEmail,
+          "password": password,
+          "administrador": "true",
+        }
+      });
     }).then((response) => {
       console.log(response);
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal("Registro alterado com sucesso");
-    })
+    });
   });
 
-  it("Deve ser exibido uma mensagem caso coloque um email existente na edição do usuario", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: false,
-      method: 'PUT',
-      url: `/usuarios/${userID}`,
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
-      body: {
-        "nome": "Fulana da Silva",
-        "email": "fulano@qa.com",
-        "password": "<PASSWORD>",
-        "administrador": "true",
-      }
+  it("Deve ser exibida uma mensagem caso coloque um email existente na edição do usuário", () => {
+    let userID;
+
+    // Cria o usuário primeiro
+    return createUser().then((id) => {
+      userID = id;
+
+      // Tenta editar o usuário com um email existente
+      return cy.request({
+        log: true,
+        failOnStatusCode: false,
+        method: 'PUT',
+        url: `/usuarios/${userID}`,
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json"
+        },
+        body: {
+          "nome": "Fulana da Silva",
+          "email": "fulano@qa.com",
+          "password": "<PASSWORD>",
+          "administrador": "true",
+        }
+      });
     }).then((response) => {
       console.log(response);
       expect(response.status).to.equal(400);
