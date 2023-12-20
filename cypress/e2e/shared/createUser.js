@@ -18,7 +18,7 @@ function createUser() {
       "nome": username,
       "email": randomEmail,
       "password": password,
-      "administrador": "true"
+      "administrador": "false"
     }
   }).then((response) => {
     console.log(response);
