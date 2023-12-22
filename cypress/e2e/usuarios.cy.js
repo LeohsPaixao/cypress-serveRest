@@ -106,7 +106,7 @@ describe(" Teste de Usuários via API", () => {
       log: true,
       failOnStatusCode: false,
       method: 'GET',
-      url: '/usuarios/0uxuPY0cbmQhpEz2',
+      url: `/usuarios/${faker.string.uuid()}`,
       headers: {
         "accept": "application/json",
         "content-type": "application/json"
