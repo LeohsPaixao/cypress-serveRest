@@ -13,7 +13,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -23,7 +23,7 @@ jobs:
           node-version: '20.9.0'
       
       - name: Install Dependencies
-        run: nvm use & npm install
+        run: npm install
 
       - name: Set up ServerRest
         run: npm start &
@@ -34,16 +34,12 @@ jobs:
           sleep 1
           done
 
-      - name: Set Output Variable
-        run: echo "CYPRESS_RUN_SUCCESS=${{ steps.cypress.outputs.exitcode }}" >> $GITHUB_ENV
-
       - name: Run Tests
         id: cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           config-file: ./cypress.config.ts
           browser: chrome
-          headless: true
           spec: cypress/e2e/**/*.cy.js
 
       - name: Upload test failures
