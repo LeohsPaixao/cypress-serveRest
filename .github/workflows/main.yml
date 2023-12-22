@@ -23,7 +23,7 @@ jobs:
           node-version: '20.9.0'
       
       - name: Install Dependencies
-        run: npm install
+        run: nvm use & npm install
 
       - name: Set up ServerRest
         run: npm start &
@@ -33,7 +33,10 @@ jobs:
           until nc -z localhost 3000; do
           sleep 1
           done
-      
+
+      - name: Set Output Variable
+        run: echo "CYPRESS_RUN_SUCCESS=${{ steps.cypress.outputs.exitcode }}" >> $GITHUB_ENV
+
       - name: Run Tests
         id: cypress
         uses: cypress-io/github-action@v2
@@ -49,6 +52,3 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/results/screenshots
-
-      - name: Set Output Variable
-        run: echo "CYPRESS_RUN_SUCCESS=${{ steps.cypress.outputs.exitcode }}" >> $GITHUB_ENV
