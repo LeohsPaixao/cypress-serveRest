@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
-import createUser from './shared/createUser';
+import createUserId from './shared/createUserId';
 
 describe(" Teste de Usuários via API", () => {
 
   beforeEach(() => {
-    cy.login();
+    cy.login({ admin: true });
   });
 
   it("Deve ser listados todos usuário", () => {
@@ -134,7 +134,7 @@ describe(" Teste de Usuários via API", () => {
     let userID;
 
     // Cria o usuário primeiro
-    return createUser().then((id) => {
+    return createUserId().then((id) => {
       userID = id;
 
       // Agora, faz a requisição para excluir o usuário
@@ -163,7 +163,7 @@ describe(" Teste de Usuários via API", () => {
     let userID;
 
     // Cria o usuário primeiro
-    return createUser().then((id) => {
+    return createUserId().then((id) => {
       userID = id;
 
       // Agora, faz a requisição para editar o usuário
@@ -194,7 +194,7 @@ describe(" Teste de Usuários via API", () => {
     let userID;
 
     // Cria o usuário primeiro
-    return createUser().then((id) => {
+    return createUserId().then((id) => {
       userID = id;
 
       // Tenta editar o usuário com um email existente
