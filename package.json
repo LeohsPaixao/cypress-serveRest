@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "npx serverest -s -p 3000 -t 7200",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:open": "cypress open --config-file=cypress.config.ts",
+    "cy:run": "cypress run --config-file=cypress.config.ts"
   },
   "repository": {
     "type": "git",

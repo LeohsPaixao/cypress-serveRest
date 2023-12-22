@@ -24,6 +24,12 @@ jobs:
 
       - name: Setup ServerRest
         run: npm start &
+
+      - name: Wait ServerRest
+        run: |
+          until nc -z localhost 3000; do
+          sleep 1
+          done
       
       - name: Cypress run
         uses: cypress-io/github-action@v2
