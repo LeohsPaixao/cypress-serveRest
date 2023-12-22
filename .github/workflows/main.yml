@@ -28,18 +28,13 @@ jobs:
       - name: Set up ServerRest
         run: npm start &
 
-      - name: Wait ServerRest
-        run: |
-          until nc -z localhost 3000; do
-          sleep 1
-          done
-
       - name: Run Tests
         id: cypress
         uses: cypress-io/github-action@v6
         with:
           config-file: ./cypress.config.ts
           browser: chrome
+          wait-on: "http://localhost:3000"
           spec: cypress/e2e/**/*.cy.js
 
       - name: Upload test failures
