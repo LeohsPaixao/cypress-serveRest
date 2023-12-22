@@ -22,7 +22,7 @@ module.exports = defineConfig({
     viewportHeight: 1080,
     screenshotsFolder: './cypress/results/screenshots',
     fixturesFolder: './cypress/fixtures',
-    videosFolder: './cypress/videos',
+    videosFolder: './cypress/results/videos',
     supportFile: './cypress/support/index.js',
     pluginsFolder: './cypress/plugins/index.js',
     retries: {
