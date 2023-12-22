@@ -21,6 +21,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20.9.0'
+      
+      - name: Install Dependencies
+        run: npm install
 
       - name: Setup ServerRest
         run: npm start &
@@ -32,4 +35,9 @@ jobs:
           done
       
       - name: Run Tests
-        run: npm run cy:open
+        uses: cypress-io/github-action@v2
+        with:
+          config-file: ./cypress.config.ts
+          browser: chrome
+          headless: true
+          spec: cypress/e2e/**/*.cy.js
