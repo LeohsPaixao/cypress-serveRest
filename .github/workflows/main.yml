@@ -35,6 +35,7 @@ jobs:
           done
       
       - name: Run Tests
+        id: cypress
         uses: cypress-io/github-action@v2
         with:
           config-file: ./cypress.config.ts
@@ -47,4 +48,7 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots
-          path: cypress/screenshots
+          path: cypress/results/screenshots
+
+      - name: Set Output Variable
+        run: echo "CYPRESS_RUN_SUCCESS=${{ steps.cypress.outputs.exitcode }}" >> $GITHUB_ENV
