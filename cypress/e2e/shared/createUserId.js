@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-function createUser() {
+function createUserId() {
   const email = faker.internet.email();
   const username = faker.internet.userName();
   const password = faker.internet.password();
@@ -30,4 +30,4 @@ function createUser() {
   });
 }
 
-export default createUser;
+export default createUserId;
