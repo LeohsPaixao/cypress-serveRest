@@ -17,15 +17,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Set up Node
+        uses: actions/setup-node@v3
         with:
           node-version: '20.9.0'
       
       - name: Install Dependencies
         run: npm install
 
-      - name: Setup ServerRest
+      - name: Set up ServerRest
         run: npm start &
 
       - name: Wait ServerRest
