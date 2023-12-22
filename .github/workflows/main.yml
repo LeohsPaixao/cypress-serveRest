@@ -31,9 +31,5 @@ jobs:
           sleep 1
           done
       
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          browser: chrome
-          headless: true
-          spec: cypress/e2e/**/*.cy.js
+      - name: Run Tests
+        run: npm run cy:open
