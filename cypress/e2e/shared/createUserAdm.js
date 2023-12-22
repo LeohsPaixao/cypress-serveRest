@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 function createUserAdm() {
-  const randomEmail = faker.internet.email();
+  const email = faker.internet.email();
   const username = faker.internet.userName();
   const password = faker.internet.password();
 
@@ -16,7 +16,7 @@ function createUserAdm() {
     },
     body: {
       "nome": username,
-      "email": randomEmail,
+      "email": email,
       "password": password,
       "administrador": "true"
     }
