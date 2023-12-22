@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
-function createUser() {
-  const randomEmail = faker.internet.email();
+function createUserAdm() {
+  const email = faker.internet.email();
   const username = faker.internet.userName();
   const password = faker.internet.password();
 
@@ -16,18 +16,22 @@ function createUser() {
     },
     body: {
       "nome": username,
-      "email": randomEmail,
+      "email": email,
       "password": password,
       "administrador": "false"
     }
   }).then((response) => {
-    console.log(response);
-    expect(response.status).to.equal(201);
-    expect(response.body.message).to.equal("Cadastro realizado com sucesso");
+    // Parseia a string JSON do responseBody para um objeto
+    const requestBodyData = JSON.parse(response.requestBody);
 
-    const id = response.body._id;
-    return cy.wrap(id);
+    // Retorna os dados do usuário separadamente
+    return {
+      nome: requestBodyData.nome,
+      email: requestBodyData.email,
+      password: requestBodyData.password,
+      administrador: requestBodyData.administrador
+    };
   });
 }
 
-export default createUser;
+export default createUserAdm;
