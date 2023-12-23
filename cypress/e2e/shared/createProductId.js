@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker';
 
-function createProductId() {
-  const name = faker.commerce.productName();
+function createProductId(quantity = faker.number.int({ min: 50, max: 500 })) {
+  const name = faker.commerce.productName() + Cypress._.random(1, 854758564);
   const price = faker.commerce.price({ min: 50, max: 250, dec: 0 });
   const descritions = faker.commerce.productDescription();
-  const amount = faker.number.int({ min: 50, max: 500 });
 
   return cy.request({
     log: true,
@@ -20,7 +19,7 @@ function createProductId() {
       "nome": name,
       "descricao": descritions,
       "preco": price,
-      "quantidade": amount
+      "quantidade": quantity
     }
   }).then((response) => {
     console.log(response);
