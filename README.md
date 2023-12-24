@@ -47,14 +47,40 @@ Certifique-se de ter as versões corretas do Node.js, Cypress e ServeREST instal
 
 ## Test Report
 
- **Em Desenvolvimento**
+ **Em Desenvolvimento 🛠️**
 
- Este projeto visa utilizar o Allure Report para os reports dos testes tanto no Github Actions quanto localmente.
+ Este projeto visa utilizar o Allure Report para os reports dos testes tanto no Github Actions quanto localmente. Atualizações sobre o progresso dessa implementação serão fornecidas.
 
-## Contribuição
+## Exemplos de Uso
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests para melhorar este projeto.
+ A seguir estão alguns exemplos de código para demonstrar como usar a ferramenta Cypress em conjunto com a API ServeREST.
+
+ ````javascript
+ describe('Teste de Login via API', () => {
+
+  it('Deve realizar o login com sucesso', () => {
+    cy.request({
+      log: true,
+      failOnStatusCode: true,
+      method: 'POST',
+      url: '/login',
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: {
+        "email": "fulano@qa.com",
+        "password": "teste"
+      },
+    }).then((response) => {
+      console.log(response);
+      expect(response.status).to.equal(200);
+      expect(response.body.message).to.equal("Login realizado com sucesso");
+    });
+  });
+ })
+ ````
 
 ## Licença
 
-Este projeto é licenciado sob a MIT License - veja o arquivo LICENSE para detalhes.
+ Este projeto é licenciado sob a MIT License - veja o arquivo LICENSE para detalhes.
