@@ -37,7 +37,7 @@ Certifique-se de ter as versões corretas do Node.js, Cypress e ServeREST instal
  ````bash
     npm start # Abrirá na porta 3000 (Default)
  ````
-
+ Obs.: É necessário abrir um terminal separado para rodar o servidor do ServeRest.
 3. **Rode os testes**
 
  ````bash
