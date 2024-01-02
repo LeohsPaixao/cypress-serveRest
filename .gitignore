@@ -1,3 +1,6 @@
+# Folder cypress
+cypress/results
+
 # Logs
 logs
 *.log

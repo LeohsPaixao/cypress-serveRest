@@ -4,7 +4,7 @@ import createProductId from './shared/createProductId';
 
 describe("Testes de produtos via API", () => {
 
-  const name = faker.commerce.productName();
+  const name = faker.commerce.productName() + Cypress._.random(1, 854758564454);
   const price = faker.commerce.price({ min: 50, max: 250, dec: 0 });
   const descritions = faker.commerce.productDescription();
   const amount = faker.number.int({ min: 50, max: 500 });

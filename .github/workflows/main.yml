@@ -32,7 +32,7 @@ jobs:
         id: cypress
         uses: cypress-io/github-action@v6
         with:
-          config-file: ./cypress.config.ts
+          config-file: ./cypress.config.js
           browser: chrome
           wait-on: "http://localhost:3000"
           spec: cypress/e2e/**/*.cy.js
