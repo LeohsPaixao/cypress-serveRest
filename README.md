@@ -5,6 +5,7 @@ Este projeto visa realizar testes automatizados de API utilizando a ferramenta C
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js Version](https://img.shields.io/badge/Node.js-%3E=20.9.0-brightgreen.svg)](https://nodejs.org/)
+[![Badge ServeRest](https://img.shields.io/badge/API-ServeRest-green)](https://github.com/ServeRest/ServeRest/)
 
 ## ServeREST
 
