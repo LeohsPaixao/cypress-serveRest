@@ -1,37 +1,37 @@
 import { faker } from '@faker-js/faker';
 
-function createUserAdm() {
+export function createUser() {
   const email = faker.internet.email();
   const username = faker.internet.userName();
   const password = faker.internet.password();
 
-  return cy.request({
-    log: true,
-    failOnStatusCode: false,
-    method: 'POST',
-    url: '/usuarios',
-    headers: {
-      "accept": "application/json",
-      "content-type": "application/json"
-    },
-    body: {
-      "nome": username,
-      "email": email,
-      "password": password,
-      "administrador": "false"
-    }
-  }).then((response) => {
-    // Parseia a string JSON do responseBody para um objeto
-    const requestBodyData = JSON.parse(response.requestBody);
+  try {
+    return cy.request({
+      log: true,
+      failOnStatusCode: false,
+      method: 'POST',
+      url: '/usuarios',
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      body: {
+        "nome": username,
+        "email": email,
+        "password": password,
+        "administrador": "false"
+      }
+    }).then((response) => {
+      const requestBodyData = JSON.parse(response.requestBody);
 
-    // Retorna os dados do usuário separadamente
-    return {
-      nome: requestBodyData.nome,
-      email: requestBodyData.email,
-      password: requestBodyData.password,
-      administrador: requestBodyData.administrador
-    };
-  });
+      return {
+        nome: requestBodyData.nome,
+        email: requestBodyData.email,
+        password: requestBodyData.password,
+        administrador: requestBodyData.administrador
+      };
+    });
+  } catch (e) {
+    throw new Error('Não foi possivel criar um usuário Normal')
+  }
 }
-
-export default createUserAdm;
