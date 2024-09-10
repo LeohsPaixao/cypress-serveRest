@@ -1,7 +1,3 @@
-/* eslint-disable import/no-unresolved */
-/* eslint-disable no-param-reassign */
-/* eslint-disable global-require */
-
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
