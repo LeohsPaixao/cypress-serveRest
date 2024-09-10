@@ -1,16 +1,14 @@
-import createUserAdm from '../e2e/shared/createUserAdm';
-import createUser from '../e2e/shared/createUser';
+import { createUser } from '../e2e/shared/createUser';
+import { createUserAdm } from '../e2e/shared/createUserAdm';
 
 Cypress.Commands.add('login', (options = {}) => {
   const { admin, normal } = options;
 
   if (admin) {
     return createUserAdm().then((userData) => {
-      // Use os dados do usuário conforme necessário
       const emailUsuario = userData.email;
       const senhaUsuario = userData.password;
 
-      // Agora, faz a requisição para login
       return cy.request({
         log: true,
         failOnStatusCode: true,
@@ -38,7 +36,6 @@ Cypress.Commands.add('login', (options = {}) => {
       const emailUsuario = userData.email;
       const senhaUsuario = userData.password;
 
-      // Agora, faz a requisição para login
       return cy.request({
         log: true,
         failOnStatusCode: true,
@@ -61,7 +58,6 @@ Cypress.Commands.add('login', (options = {}) => {
       });
     });
   } else {
-    // Retorna uma promessa rejeitada com a mensagem de erro
-    return Promise.reject('Deve ser definido que tipo de usuário');
+    throw new Error('Deve ser definido que tipo de usuário');
   }
 });
