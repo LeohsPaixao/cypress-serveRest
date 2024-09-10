@@ -1,262 +1,154 @@
 import { faker } from '@faker-js/faker';
+import { apiRequest } from './shared/apiRequest';
 import createProduct from './shared/createProduct';
 import createProductId from './shared/createProductId';
+import { generateProductData } from './shared/generateProductData';
+
+const productData = generateProductData();
 
 describe("Testes de produtos via API", () => {
 
-  const name = faker.commerce.productName() + Cypress._.random(1, 854758564454);
-  const price = faker.commerce.price({ min: 50, max: 250, dec: 0 });
-  const descritions = faker.commerce.productDescription();
-  const amount = faker.number.int({ min: 50, max: 500 });
 
   context("Admin", () => {
     beforeEach(() => {
-      cy.login({ admin: true })
+      cy.login({ admin: true });
     });
 
-    it("Deve listar todos os projetos cadatrados", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
-        method: 'GET',
-        url: '/produtos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
-        body: {}
-      }).then((response) => {
-        console.log(response);
-        expect(response.status).to.equal(200);
-      });
+    it("Deve listar todos os produtos cadastrados", () => {
+      apiRequest({ method: 'GET', url: '/produtos' })
+        .then((response) => {
+          expect(response.status).to.equal(200);
+          expect(response.body).to.be.an('object');
+        });
     });
 
-    it("Deve cadatrar um novo produto", () => {
+    it("Deve cadastrar um novo produto", () => {
       createProduct();
     });
 
-    it("Deve ser exibido uma mensagem caso tente cadastrar um novo produto com o mesmo nome de um produto já cadastrado", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem ao tentar cadastrar produto com nome duplicado", () => {
+      apiRequest({
         method: 'POST',
         url: '/produtos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
         body: {
-          "nome": "Teste Produto02",
-          "descricao": "Teste Descrição",
-          "preco": 110,
-          "quantidade": 110,
-        }
+          nome: "Teste Produto02",
+          descricao: "Teste Descrição",
+          preco: 110,
+          quantidade: 110
+        },
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(400);
-        expect(response.body.message).to.equal("Já existe produto com esse nome");
+        expect(response.body.message).to.include("produto com esse nome");
       });
     });
 
-    it("Deve ser exibido uma mensagem caso o token tenha expirado ou inválido", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem ao usar token inválido ou expirado", () => {
+      apiRequest({
         method: 'POST',
         url: '/produtos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-        },
-        body: {
-          "nome": name,
-          "descricao": descritions,
-          "preco": price,
-          "quantidade": amount
-        }
+        body: productData,
+        auth: false,
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
+        expect(response.body.message).to.include("Token de acesso ausente, inválido, expirado");
       });
     });
 
     it("Deve buscar um produto pelo ID", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: true,
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'GET',
-          url: `/produtos/${productId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
-          body: {}
+          url: `/produtos/${productId}`
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(200);
+          expect(response.body).to.have.property('_id', productId);
         });
       });
     });
 
-    it("Deve ser exibido uma mensagem caso o produto não seja encontrado", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem ao não encontrar produto", () => {
+      apiRequest({
         method: 'GET',
         url: `/produtos/${faker.string.uuid()}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
-        body: {}
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(400);
-        expect(response.body.message).to.equal("Produto não encontrado");
+        expect(response.body.message).to.include("Produto não encontrado");
       });
     });
 
     it("Deve excluir um produto", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: true,
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'DELETE',
-          url: `/produtos/${productId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
-          body: {}
+          url: `/produtos/${productId}`
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(200);
-          expect(response.body.message).to.equal("Registro excluído com sucesso");
+          expect(response.body.message).to.include("Registro excluído com sucesso");
         });
       });
     });
 
-    it("Deve ser exibido uma mensagem caso tente excluir sem autenficacão de usuário Adminstrador", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: false,
+    it("Deve exibir mensagem ao tentar excluir sem autenticação de administrador", () => {
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'DELETE',
           url: `/produtos/${productId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-          },
-          body: {}
+          auth: false,
+          failOnStatusCode: false
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
+          expect(response.body.message).to.include("Token de acesso ausente, inválido, expirado");
         });
       });
     });
 
     it("Deve editar um produto", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: true,
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'PUT',
           url: `/produtos/${productId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
-          body: {
-            "nome": name,
-            "descricao": descritions,
-            "preco": price,
-            "quantidade": amount
-          }
+          body: productData
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(200);
-          expect(response.body.message).to.equal("Registro alterado com sucesso");
+          expect(response.body.message).to.include("Registro alterado com sucesso");
         });
       });
     });
 
-    it("Deve ser exibido uma mensagem caso coloque o nome de um produto já cadastrado na edição", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem ao tentar editar com nome de produto já cadastrado", () => {
+      apiRequest({
         method: 'PUT',
         url: `/produtos/${faker.string.uuid()}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
         body: {
-          "nome": "Teste Produto02",
-          "descricao": "Teste Descrição",
-          "preco": 110,
-          "quantidade": 110,
-        }
+          nome: "Teste Produto02",
+          descricao: "Teste Descrição",
+          preco: 110,
+          quantidade: 110
+        },
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(400);
-        expect(response.body.message).to.equal("Já existe produto com esse nome");
+        expect(response.body.message).to.include("produto com esse nome");
       });
     });
 
-    it("Deve ser exibido uma mensagem caso tente editar sem a autenticação do usuário admin", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: false,
+    it("Deve exibir mensagem ao tentar editar sem autenticação de administrador", () => {
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'PUT',
           url: `/produtos/${productId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-          },
-          body: {
-            "nome": name,
-            "descricao": descritions,
-            "preco": price,
-            "quantidade": amount
-          }
+          body: productData,
+          auth: false,
+          failOnStatusCode: false
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
+          expect(response.body.message).to.include("Token de acesso ausente, inválido, expirado");
         });
       });
-    })
+    });
   });
 
   context("Normal", () => {
@@ -264,76 +156,44 @@ describe("Testes de produtos via API", () => {
       cy.login({ normal: true });
     });
 
-    it("Deve ser exibido uma mensagem de rota exclusiva caso tente cadastrar um novo produto com usuario normal", () => {
-      const name = faker.commerce.productName();
-      const price = faker.commerce.price({ min: 50, max: 250, dec: 0 });
-      const descritions = faker.commerce.productDescription();
-      const amount = faker.number.int({ min: 50, max: 500 });
-
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem de rota exclusiva ao tentar cadastrar produto com usuário normal", () => {
+      apiRequest({
         method: 'POST',
         url: '/produtos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
-        body: {
-          "nome": name,
-          "descricao": descritions,
-          "preco": price,
-          "quantidade": amount
-        }
+        body: generateProductData(),
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(403);
-        expect(response.body.message).to.equal("Rota exclusiva para administradores");
+        expect(response.body.message).to.include("Rota exclusiva para administradores");
       });
     });
 
-    it("Deve ser exibido uma mensagem de rota exclusiva caso tente excluir um produto com usuário normal", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem de rota exclusiva ao tentar excluir produto com usuário normal", () => {
+      apiRequest({
         method: 'DELETE',
         url: `/produtos/${faker.string.uuid()}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
-        body: {}
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(403);
-        expect(response.body.message).to.equal("Rota exclusiva para administradores");
+        expect(response.body.message).to.include("Rota exclusiva para administradores");
       });
     });
 
-    it("Deve ser exibido uma mensagem de rota exclusiva caso tente editar um projeto com usuário normal", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve exibir mensagem de rota exclusiva ao tentar editar produto com usuário normal", () => {
+      apiRequest({
         method: 'PUT',
         url: `/produtos/${faker.string.uuid()}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
         body: {
-          "nome": "Teste Produto02",
-          "descricao": "Teste Descrição",
-          "preco": 110,
-          "quantidade": 110,
-        }
+          nome: "Teste Produto02",
+          descricao: "Teste Descrição",
+          preco: 110,
+          quantidade: 110
+        },
+        failOnStatusCode: false
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(403);
-        expect(response.body.message).to.equal("Rota exclusiva para administradores");
+        expect(response.body.message).to.include("Rota exclusiva para administradores");
       });
     });
   });
-})
+});

@@ -1,29 +1,21 @@
 import { faker } from '@faker-js/faker';
-import createProductId from './shared/createProductId'
+import { apiRequest } from './shared/apiRequest'; // Importe a função apiRequest
+import createProductId from './shared/createProductId';
 import createTrolley from './shared/createTrolley';
 
 const randomAmount = faker.number.int({ min: 2, max: 10 });
 
 describe("Testes de carrinho via API", () => {
-
   context("Admin", () => {
     beforeEach(() => {
       cy.login({ admin: true });
-    })
+    });
 
-    it("Deve listar os carrinho cadastrado", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
+    it("Deve listar os carrinhos cadastrados", () => {
+      apiRequest({
         method: 'GET',
         url: '/carrinhos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(200);
       });
     });
@@ -41,16 +33,9 @@ describe("Testes de carrinho via API", () => {
       });
 
       cy.wrap(productIds).then((productIds) => {
-        cy.request({
-          log: true,
-          failOnStatusCode: true,
+        apiRequest({
           method: 'POST',
           url: '/carrinhos',
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
           body: {
             "produtos": productIds.map((id, index) => ({
               "idProduto": id,
@@ -58,7 +43,6 @@ describe("Testes de carrinho via API", () => {
             }))
           }
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(201);
           expect(response.body.message).to.equal("Cadastro realizado com sucesso");
         });
@@ -66,61 +50,37 @@ describe("Testes de carrinho via API", () => {
     });
 
     it("Deve ser exibido uma mensagem caso tente colocar um produto inexistente no carrinho", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+      apiRequest({
         method: 'POST',
         url: '/carrinhos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        },
+        failOnStatusCode: false,
         body: {
           "produtos": [
             {
               "idProduto": faker.string.uuid(),
               "quantidade": randomAmount
-            },
+            }
           ]
         }
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(400);
         expect(response.body.message).to.equal("Produto não encontrado");
       });
     });
 
-    it("Deve ser exibido uma mensagem caso tente colocar dois produtos iguais no carrinhos", () => {
-      let productId;
-
-      return createProductId().then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: false,
+    it("Deve ser exibido uma mensagem caso tente colocar dois produtos iguais no carrinho", () => {
+      createProductId().then((productId) => {
+        apiRequest({
           method: 'POST',
           url: '/carrinhos',
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
+          failOnStatusCode: false,
           body: {
             "produtos": [
-              {
-                "idProduto": productId,
-                "quantidade": randomAmount
-              },
-              {
-                "idProduto": productId,
-                "quantidade": randomAmount
-              }
+              { "idProduto": productId, "quantidade": randomAmount },
+              { "idProduto": productId, "quantidade": randomAmount }
             ]
           }
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(400);
           expect(response.body.message).to.equal("Não é permitido possuir produto duplicado");
         });
@@ -128,31 +88,17 @@ describe("Testes de carrinho via API", () => {
     });
 
     it("Deve ser exibido uma mensagem caso tente colocar um produto com quantidade zerada no carrinho", () => {
-      let productId;
-
-      return createProductId(1).then((id) => {
-        productId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: false,
+      createProductId(1).then((productId) => {
+        apiRequest({
           method: 'POST',
           url: '/carrinhos',
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          },
+          failOnStatusCode: false,
           body: {
             "produtos": [
-              {
-                "idProduto": productId,
-                "quantidade": 2
-              }
+              { "idProduto": productId, "quantidade": 2 }
             ]
           }
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(400);
           expect(response.body.message).to.equal("Produto não possui quantidade suficiente");
         });
@@ -160,179 +106,113 @@ describe("Testes de carrinho via API", () => {
     });
 
     it("Deve ser exibido uma mensagem caso tente cadastrar sem autenticação de usuário administrador", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+      apiRequest({
         method: 'POST',
         url: '/carrinhos',
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        },
+        failOnStatusCode: false,
+        auth: false,
         body: {
           "produtos": [
             {
               "idProduto": faker.string.uuid(),
               "quantidade": randomAmount
-            },
+            }
           ]
         }
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(401);
         expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
       });
     });
 
     it("Deve buscar um carrinho de compras", () => {
-      let trolleyId;
-
-      return createTrolley().then((id) => {
-        trolleyId = id;
-
-        return cy.request({
-          log: true,
-          failOnStatusCode: true,
+      createTrolley().then((trolleyId) => {
+        apiRequest({
           method: 'GET',
           url: `/carrinhos/${trolleyId}`,
-          headers: {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "Authorization": localStorage.getItem('token')
-          }
         }).then((response) => {
-          console.log(response);
           expect(response.status).to.equal(200);
         });
-      })
+      });
     });
 
-    it("Deve ser exibido uma mensagem caso o carrinho não é encontrado", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve ser exibido uma mensagem caso o carrinho não seja encontrado", () => {
+      apiRequest({
         method: 'GET',
         url: `/carrinhos/${faker.string.uuid()}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
+        failOnStatusCode: false,
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(400);
         expect(response.body.message).to.equal("Carrinho não encontrado");
       });
     });
 
     it("Deve concluir com compra e excluir o carrinho", () => {
-      createTrolley()
-
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
-        method: 'DELETE',
-        url: `/carrinhos/concluir-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
-      }).then((response) => {
-        console.log(response);
-        expect(response.status).to.equal(200);
-        expect(response.body.message).to.equal("Registro excluído com sucesso");
-      })
+      createTrolley().then(() => {
+        apiRequest({
+          method: 'DELETE',
+          url: `/carrinhos/concluir-compra`,
+        }).then((response) => {
+          expect(response.status).to.equal(200);
+          expect(response.body.message).to.equal("Registro excluído com sucesso");
+        });
+      });
     });
 
     it("Deve ser exibido uma mensagem caso não encontre o carrinho do usuário", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
+      apiRequest({
         method: 'DELETE',
         url: `/carrinhos/concluir-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(200);
         expect(response.body.message).to.equal("Não foi encontrado carrinho para esse usuário");
-      })
+      });
     });
 
     it("Deve ser exibido uma mensagem caso tente concluir uma compra sem autenticação do usuário administrador", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+      apiRequest({
         method: 'DELETE',
         url: `/carrinhos/concluir-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        }
+        failOnStatusCode: false,
+        auth: false,
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(401);
         expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
-      })
+      });
     });
 
     it("Deve cancelar uma compra", () => {
-      createTrolley()
-
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
-        method: 'DELETE',
-        url: `/carrinhos/cancelar-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
-      }).then((response) => {
-        console.log(response);
-        expect(response.status).to.equal(200);
-        expect(response.body.message).to.equal("Registro excluído com sucesso. Estoque dos produtos reabastecido");
-      })
+      createTrolley().then(() => {
+        apiRequest({
+          method: 'DELETE',
+          url: `/carrinhos/cancelar-compra`,
+        }).then((response) => {
+          expect(response.status).to.equal(200);
+          expect(response.body.message).to.equal("Registro excluído com sucesso. Estoque dos produtos reabastecido");
+        });
+      });
     });
 
     it("Deve ser exibido uma mensagem caso não encontre o carrinho do usuário para cancelar a compra", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: true,
+      apiRequest({
         method: 'DELETE',
         url: `/carrinhos/cancelar-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json",
-          "Authorization": localStorage.getItem('token')
-        }
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(200);
         expect(response.body.message).to.equal("Não foi encontrado carrinho para esse usuário");
-      })
+      });
     });
 
-    it("Deve ser exibido uma mensagem caso tente cancelar uma compra sem a autenticação do usuário adminstrador", () => {
-      cy.request({
-        log: true,
-        failOnStatusCode: false,
+    it("Deve ser exibido uma mensagem caso tente cancelar uma compra sem a autenticação do usuário administrador", () => {
+      apiRequest({
         method: 'DELETE',
         url: `/carrinhos/cancelar-compra`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        }
+        failOnStatusCode: false,
+        auth: false,
       }).then((response) => {
-        console.log(response);
         expect(response.status).to.equal(401);
         expect(response.body.message).to.equal("Token de acesso ausente, inválido, expirado ou usuário do token não existe mais");
-      })
-    })
+      });
+    });
   });
-})
+});

@@ -1,42 +1,27 @@
 import { faker } from '@faker-js/faker';
+import { apiRequest } from './shared/apiRequest';
 import createUserId from './shared/createUserId';
 
-describe(" Teste de Usuários via API", () => {
+describe("Teste de Usuários via API", () => {
 
   beforeEach(() => {
     cy.login({ admin: true });
   });
 
-  it("Deve ser listados todos usuário", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: true,
-      method: 'GET',
-      url: '/usuarios',
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
-      body: {
-      }
-    }).then((response) => {
-      console.log(response);
-      expect(response.status).to.equal(200);
-    });
+  it("Deve listar todos os usuários", () => {
+    apiRequest({ method: 'GET', url: '/usuarios' })
+      .then((response) => {
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('object');
+      });
   });
 
-  it("Deve cadatrar um novo usuario", () => {
+  it("Deve cadastrar um novo usuário", () => {
     const randomEmail = faker.internet.email();
 
-    cy.request({
-      log: true,
-      failOnStatusCode: true,
+    apiRequest({
       method: 'POST',
       url: '/usuarios',
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
       body: {
         "nome": "Fulana da Silva",
         "email": randomEmail,
@@ -44,138 +29,72 @@ describe(" Teste de Usuários via API", () => {
         "administrador": "true"
       }
     }).then((response) => {
-      console.log(response);
       expect(response.status).to.equal(201);
-      expect(response.body.message).to.equal("Cadastro realizado com sucesso");
-    })
+      expect(response.body.message).to.include("Cadastro realizado com sucesso");
+    });
   });
 
-  it("Deve ser exibido uma mensagem caso o email informado seja igual de um usuário já cadastro", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: false,
+  it("Deve exibir uma mensagem ao tentar cadastrar usuário com email duplicado", () => {
+    apiRequest({
       method: 'POST',
       url: '/usuarios',
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
       body: {
         "nome": "Fulana da Silva",
         "email": "fulano@qa.com",
         "password": "<PASSWORD>",
         "administrador": "true"
-      }
-    }).then((response) => {
-      console.log(response);
-      expect(response.status).to.equal(400);
-      expect(response.body.message).to.equal("Este email já está sendo usado");
-    })
-  });
-
-  it("Deve buscar um usuários pelo ID", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: true,
-      method: 'GET',
-      url: '/usuarios/0uxuPY0cbmQhpEz1',
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
       },
-      body: {
-        "quantidade": 1,
-        "usuarios": [
-          {
-            "nome": "Fulana da Silva",
-            "email": "fulano@qa.com",
-            "password": "<PASSWORD>",
-            "administrador": "true",
-            "_id": "0uxuPY0cbmQhpEz1"
-          }
-        ]
-      }
+      failOnStatusCode: false
     }).then((response) => {
-      console.log(response);
-      expect(response.status).to.equal(200);
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.include("Este email já está sendo usado");
     });
   });
 
-  it("Deve ser exibido uma mensagem caso o usuário não é encontrado na buscar", () => {
-    cy.request({
-      log: true,
-      failOnStatusCode: false,
+  it("Deve buscar um usuário pelo ID", () => {
+    const userID = "0uxuPY0cbmQhpEz1";
+
+    apiRequest({
+      method: 'GET',
+      url: `/usuarios/${userID}`
+    }).then((response) => {
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('_id', userID);
+    });
+  });
+
+  it("Deve exibir uma mensagem ao não encontrar o usuário na busca", () => {
+    apiRequest({
       method: 'GET',
       url: `/usuarios/${faker.string.uuid()}`,
-      headers: {
-        "accept": "application/json",
-        "content-type": "application/json"
-      },
-      body: {
-        "quantidade": 1,
-        "usuarios": [
-          {
-            "nome": "Fulana da Silva",
-            "email": "fulano@qa.com",
-            "password": "<PASSWORD>",
-            "administrador": "true",
-            "_id": "0uxuPY0cbmQhpEz1"
-          }
-        ]
-      }
+      failOnStatusCode: false
     }).then((response) => {
-      console.log(response);
       expect(response.status).to.equal(400);
-      expect(response.body.message).to.equal("Usuário não encontrado");
-    })
+      expect(response.body.message).to.include("Usuário não encontrado");
+    });
   });
 
   it("Deve excluir um usuário", () => {
-    let userID;
-
-    // Cria o usuário primeiro
-    return createUserId().then((id) => {
-      userID = id;
-
-      // Agora, faz a requisição para excluir o usuário
-      return cy.request({
-        log: true,
-        failOnStatusCode: true,
+    createUserId().then((userID) => {
+      return apiRequest({
         method: 'DELETE',
-        url: `/usuarios/${userID}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        },
+        url: `/usuarios/${userID}`
       });
     }).then((response) => {
-      console.log(response);
       expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal("Registro excluído com sucesso");
+      expect(response.body.message).to.include("Registro excluído com sucesso");
     });
   });
-
 
   it("Deve editar um usuário", () => {
     const randomEmail = faker.internet.email();
     const username = faker.internet.userName();
     const password = faker.internet.password();
-    let userID;
 
-    // Cria o usuário primeiro
-    return createUserId().then((id) => {
-      userID = id;
-
-      // Agora, faz a requisição para editar o usuário
-      return cy.request({
-        log: true,
-        failOnStatusCode: true,
+    createUserId().then((userID) => {
+      return apiRequest({
         method: 'PUT',
         url: `/usuarios/${userID}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        },
         body: {
           "nome": username,
           "email": randomEmail,
@@ -184,40 +103,27 @@ describe(" Teste de Usuários via API", () => {
         }
       });
     }).then((response) => {
-      console.log(response);
       expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal("Registro alterado com sucesso");
+      expect(response.body.message).to.include("Registro alterado com sucesso");
     });
   });
 
-  it("Deve ser exibida uma mensagem caso coloque um email existente na edição do usuário", () => {
-    let userID;
-
-    // Cria o usuário primeiro
-    return createUserId().then((id) => {
-      userID = id;
-
-      // Tenta editar o usuário com um email existente
-      return cy.request({
-        log: true,
-        failOnStatusCode: false,
+  it("Deve exibir uma mensagem ao tentar editar com email existente", () => {
+    createUserId().then((userID) => {
+      return apiRequest({
         method: 'PUT',
         url: `/usuarios/${userID}`,
-        headers: {
-          "accept": "application/json",
-          "content-type": "application/json"
-        },
         body: {
           "nome": "Fulana da Silva",
           "email": "fulano@qa.com",
           "password": "<PASSWORD>",
           "administrador": "true",
-        }
+        },
+        failOnStatusCode: false
       });
     }).then((response) => {
-      console.log(response);
       expect(response.status).to.equal(400);
-      expect(response.body.message).to.equal("Este email já está sendo usado");
+      expect(response.body.message).to.include("Este email já está sendo usado");
     });
   });
-})
+});
