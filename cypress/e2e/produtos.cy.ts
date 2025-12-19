@@ -27,11 +27,25 @@ describe('Testes de produtos via API', () => {
     });
 
     it('Deve exibir mensagem ao tentar cadastrar produto com nome duplicado', () => {
+      const productName = 'Teste Produto02';
+
       apiRequest({
         method: 'POST',
         url: '/produtos',
         body: {
-          nome: 'Teste Produto02',
+          nome: productName,
+          descricao: 'Teste Descrição',
+          preco: 110,
+          quantidade: 110,
+        },
+        failOnStatusCode: false,
+      });
+
+      apiRequest({
+        method: 'POST',
+        url: '/produtos',
+        body: {
+          nome: productName,
           descricao: 'Teste Descrição',
           preco: 110,
           quantidade: 110,
@@ -39,7 +53,7 @@ describe('Testes de produtos via API', () => {
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.equal(400);
-        expect((response.body as ErrorResponse).message).to.include('produto com esse nome');
+        expect((response.body as ErrorResponse).message).to.include('Já existe produto com esse nome');
       });
     });
 
