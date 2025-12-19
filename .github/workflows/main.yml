@@ -1,17 +1,16 @@
 name: Cypress Run CI
 
-on: 
+on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -20,22 +19,28 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20.9.0'
-      
+          node-version: '22.19.0'
+
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Set up ServerRest
         run: npm start &
+
+      - name: Execute Type Check
+        run: npm run type-check
+
+      - name: Execute Lint
+        run: npm run lint
 
       - name: Run Tests
         id: cypress
         uses: cypress-io/github-action@v6
         with:
-          config-file: ./cypress.config.js
+          config-file: ./cypress.config.ts
           browser: chrome
-          wait-on: "http://localhost:3000"
-          spec: cypress/e2e/**/*.cy.js
+          wait-on: 'http://localhost:3000'
+          spec: cypress/e2e/**/*.cy.ts
 
       - name: Upload test failures
         uses: actions/upload-artifact@v4.4.3
