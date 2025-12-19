@@ -7,8 +7,12 @@
   "homepage": "https://github.com/LeohsPaixao/cypress-serveRest#readme",
   "scripts": {
     "start": "npx serverest -s -p 3000 -t 30000",
-    "cy:open": "cypress open --config-file=cypress.config.js",
-    "cy:run": "cypress run --config-file=cypress.config.js"
+    "cy:open": "npm run clean && cypress open --config-file cypress.config.ts",
+    "cy:run": "npm run clean && cypress run --config-file cypress.config.ts",
+    "clean": "rimraf cypress/results",
+    "format": "prettier --write .",
+    "lint": "eslint . --fix",
+    "type-check": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -25,17 +29,23 @@
     "automation"
   ],
   "dependencies": {
-    "serverest": "2.29.7"
+    "serverest": "2.24.2"
   },
   "devDependencies": {
     "@faker-js/faker": "10.1.0",
+    "@types/node": "22.10.2",
+    "@typescript-eslint/eslint-plugin": "8.18.2",
+    "@typescript-eslint/parser": "8.18.2",
+    "typescript-eslint": "8.18.2",
     "cypress": "15.8.1",
     "cypress-plugin-api": "2.11.2",
+    "dotenv": "17.2.3",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-cypress": "5.2.0",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-prettier": "5.5.4",
-    "eslint-plugin-cypress": "5.2.0",
+    "rimraf": "6.0.1",
     "event-loop-stats": "1.4.1",
     "prettier": "3.7.4",
     "typescript": "5.7.3"
