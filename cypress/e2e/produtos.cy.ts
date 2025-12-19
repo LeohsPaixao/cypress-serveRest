@@ -47,7 +47,7 @@ describe('Testes de produtos via API', () => {
       apiRequest({
         method: 'POST',
         url: '/produtos',
-        body: productData,
+        body: productData as unknown as Record<string, unknown>,
         auth: false,
         failOnStatusCode: false,
       }).then((response) => {
@@ -110,7 +110,7 @@ describe('Testes de produtos via API', () => {
         apiRequest({
           method: 'PUT',
           url: `/produtos/${productId}`,
-          body: productData,
+          body: productData as unknown as Record<string, unknown>,
         }).then((response) => {
           expect(response.status).to.equal(200);
           expect((response.body as SuccessMessageResponse).message).to.include('Registro alterado com sucesso');
@@ -140,7 +140,7 @@ describe('Testes de produtos via API', () => {
         apiRequest({
           method: 'PUT',
           url: `/produtos/${productId}`,
-          body: productData,
+          body: productData as unknown as Record<string, unknown>,
           auth: false,
           failOnStatusCode: false,
         }).then((response) => {
@@ -160,7 +160,7 @@ describe('Testes de produtos via API', () => {
       apiRequest({
         method: 'POST',
         url: '/produtos',
-        body: productData,
+        body: productData as unknown as Record<string, unknown>,
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.equal(403);
