@@ -2,7 +2,9 @@
   "name": "cypress-serverest",
   "version": "1.0.0",
   "description": "Testing automation with cypress and ServeRest",
-  "main": "index.js",
+  "author": "Leonardo Paixão",
+  "license": "MIT",
+  "homepage": "https://github.com/LeohsPaixao/cypress-serveRest#readme",
   "scripts": {
     "start": "npx serverest -s -p 3000 -t 30000",
     "cy:open": "cypress open --config-file=cypress.config.js",
@@ -12,22 +14,30 @@
     "type": "git",
     "url": "https://github.com/LeohsPaixao/cypress-serveRest.git"
   },
-  "keywords": [
-    "testing"
-  ],
-  "author": "Leonardo Paixão",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/LeohsPaixao/cypress-serveRest/issues"
   },
-  "homepage": "https://github.com/LeohsPaixao/cypress-serveRest#readme",
+  "keywords": [
+    "testing",
+    "cypress",
+    "serverest",
+    "api",
+    "automation"
+  ],
   "dependencies": {
-    "@faker-js/faker": "^8.3.1",
-    "cypress-plugin-api": "^2.11.2",
-    "event-loop-stats": "^1.4.1",
-    "serverest": "^2.28.0"
+    "serverest": "2.29.7"
   },
   "devDependencies": {
-    "cypress": "^13.6.1"
+    "@faker-js/faker": "10.1.0",
+    "cypress": "15.8.1",
+    "cypress-plugin-api": "2.11.2",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-cypress": "5.2.0",
+    "event-loop-stats": "1.4.1",
+    "prettier": "3.7.4",
+    "typescript": "5.7.3"
   }
 }
