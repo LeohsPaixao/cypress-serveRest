@@ -7,7 +7,7 @@ on:
     branches: ['main']
 
 jobs:
-  cypress-run:
+  workflow-project:
     runs-on: ubuntu-latest
 
     steps:
